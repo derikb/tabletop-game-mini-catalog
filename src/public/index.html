@@ -1,0 +1,131 @@
+<html lang="en-US">
+    <head>
+        <title>Miniature Catalog: Home</title>
+    </head>
+    <body>
+        <h1>Miniature Catalog</h1>
+
+        <form id="figure-add" method="post" action="/figure">
+
+            <label for="figure-name">Name of Figure or Group</label>
+            <input id="figure-name" type="text" name="name" required />
+
+            <label for="figure-manufacturer">Manufacturer</label>
+            <input id="figure-manufacturer" type="text" name="manufacturer" />
+
+            <label for="figure-count">Number in Group</label>
+            <input id="figure-count" type="number" name="count" value="1" min="1" />
+
+            <label for="figure-scale">Scale (mm)</label>
+            <input id="figure-scale" type="number" name="scale" value="" min="1" />
+
+            <div>
+                <input type="checkbox" name="built" id="figure-built" value="1" checked />
+                <label for="figure-built">Built</label>
+            </div>
+
+            <div>
+                <input type="checkbox" name="primed" id="figure-primed" value="1" />
+                <label for="figure-primed">Primed</label>
+            </div>
+
+            <div>
+                <input type="checkbox" name="painted" id="figure-painted" value="1" />
+                <label for="figure-painted">Painted</label>
+            </div>
+
+            <div>
+                <label for="figure-material">Material</label>
+                <select id="figure-base_shape" name="material">
+                    <option value="metal">Metal</option>
+                    <option value="plastic">Plastic</option>
+                    <option value="resin">Resin</option>
+                    <option value="other">Other</option>
+                </select>
+
+            </div>
+
+            <label for="figure-base_shape">Base Shape</label>
+            <select id="figure-base_shape" name="base_shape">
+                <option value="">None</option>
+                <option value="circle">Circle</option>
+                <option value="square">Square</option>
+                <option value="rectangle">rectangle</option>
+                <option value="oval">oval</option>
+                <option value="hex">hex</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="figure-base_size">Base Size (mm)</label>
+            <input id="figure-base_size" type="number" name="base_size" value="25" />
+
+            <label for="figure-tag_ids">Tags</label>
+            <select id="figure-tag_ids" name="tag_ids" multiple>
+
+            </select>
+
+            <button type="submit">Save</button>
+        </form>
+
+        <script>
+
+            const addForm = document.getElementById('figure-add');
+            addForm.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const data = new FormData(addForm);
+
+                data.forEach((value, key) => {
+                    console.log(`${value}, ${key}`);
+                });
+                const formObject = Object.fromEntries(data);
+                formObject.tag_ids = data.getAll('tag_ids');
+                try {
+                    const response = await fetch(
+                        addForm.action,
+                        {
+                            method: addForm.method,
+                            body: JSON.stringify(formObject),
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
+                    if (!response.ok) {
+                        const { message } = await response.json();
+                        console.log(message);
+                        return;
+                    }
+                    console.log(response);
+                } catch (err) {
+                    console.log(err.message);
+                }
+            });
+
+            const loadTags = async function() {
+                const response = await fetch(
+                    '/tags/all',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                const { tags = [] } = await response.json();
+                const select = document.getElementById('figure-tag_ids');
+                tags.forEach((t) => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id ?? 0;
+                    opt.innerText = t.name ?? '';
+                    if (opt.innerText) {
+                        select.appendChild(opt);
+                    }
+                });
+            };
+
+            loadTags();
+        </script>
+    </body>
+</html>
