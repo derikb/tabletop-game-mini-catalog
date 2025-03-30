@@ -1,5 +1,8 @@
 import Fastify from 'fastify'
-import firstRoute from './src/routes/our-first-route.js'
+import pagesRoute from './src/routes/pages.js';
+import figureRoutes from './src/routes/figures.js';
+import makerRoutes from './src/routes/makers.js';
+import tagRoutes from './src/routes/tags.js';
 import dbConnector from './src/plugins/db-connector.js'
 import bootstrapTables from './src/plugins/db-bootstrap.js';
 import repo from './src/plugins/db-repo.js';
@@ -17,8 +20,10 @@ fastify.register(fastifyStatic, {
     root: path.join(import.meta.dirname, 'src', 'public'),
 });
 fastify.addSchema(FigureSchema);
-fastify.register(firstRoute);
-
+fastify.register(pagesRoute);
+fastify.register(tagRoutes);
+fastify.register(makerRoutes);
+fastify.register(figureRoutes);
 
 fastify.addHook('onReady', async function () {
     // Some async code
