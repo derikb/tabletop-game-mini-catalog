@@ -5,13 +5,19 @@
     <body>
         <h1>Miniature Catalog</h1>
 
+        <nav>
+            <a href="/tags">Manage Tags</a>
+            <a href="/makers">Manage Makers</a>
+        </nav>
         <form id="figure-add" method="post" action="/figure">
+            <input type="hidden" name="id" id="figure-id" value="0" />
 
             <label for="figure-name">Name of Figure or Group</label>
             <input id="figure-name" type="text" name="name" required />
 
-            <label for="figure-manufacturer">Manufacturer</label>
-            <input id="figure-manufacturer" type="text" name="manufacturer" />
+            <label for="figure-maker_id">Maker</label>
+            <select id="figure-maker_id" name="maker_id">
+            </select>
 
             <label for="figure-count">Number in Group</label>
             <input id="figure-count" type="number" name="count" value="1" min="1" />
@@ -80,8 +86,9 @@
                 const formObject = Object.fromEntries(data);
                 formObject.tag_ids = data.getAll('tag_ids');
                 try {
+                    const figureId = data.get('id') || 0;
                     const response = await fetch(
-                        addForm.action,
+                        `${addForm.action}${figureId > 0 ? `/${figureId}` : ''}`,
                         {
                             method: addForm.method,
                             body: JSON.stringify(formObject),
@@ -125,7 +132,79 @@
                 });
             };
 
+            const loadMakers = async function() {
+                const response = await fetch(
+                    '/makers/all',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                const { makers = [] } = await response.json();
+                const select = document.getElementById('figure-maker_id');
+                makers.forEach((t) => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id ?? 0;
+                    opt.innerText = t.name ?? '';
+                    if (opt.innerText) {
+                        select.appendChild(opt);
+                    }
+                });
+            };
+
+            const loadFigure = async function(figure_id) {
+                const response = await fetch(
+                    `/figure/${figure_id}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                const { figure = null } = await response.json();
+                if (!figure) {
+                    return;
+                }
+
+                addForm.reset();
+                for(const [key, val] of Object.entries(figure)) {
+                    const input = addForm.elements[key];
+                    switch(input.type) {
+                        case 'select-one':
+                            input.value = val;
+                            break;
+                        case 'select-multiple':
+                            Array.from(input.options).forEach((option) => {
+                                if (val.includes(Number(option.value))) {
+                                    option.selected = true;
+                                } else {
+                                    option.selected = false;
+                                }
+                            });
+                            break;
+                        case 'checkbox':
+                            input.checked = !!val;
+                            break;
+                        default:
+                            input.value = val;
+                            break;
+                    }
+                }
+            };
+
             loadTags();
+            loadMakers();
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('figure_id') > 0) {
+                const figureId = params.get('figure_id');
+                loadFigure(figureId);
+            }
         </script>
     </body>
 </html>

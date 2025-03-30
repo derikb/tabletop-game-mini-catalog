@@ -1,12 +1,14 @@
 // queries to db
 import fastifyPlugin from 'fastify-plugin';
 import Figure from '../models/Figure.js';
+import Maker from '../models/Maker.js';
 import Tag from '../models/Tag.js';
 
 class Repository {
 
-    constructor(db) {
+    constructor(db, log) {
         this.db = db;
+        this.log = log;
     }
 
     getAllFigures () {
@@ -20,7 +22,7 @@ class Repository {
         const obj = this.db.prepare(`SELECT * FROM "figures" WHERE "id" = ? LIMIT 1`).get([id]);
         const model = obj ? new Figure(obj) : null;
         if (model) {
-            model.setTagIds(this.getTagIdsByFigure(model.id));
+            model.setTagIds(this.getTagIdsByFigure(model.getId()));
         }
         return model;
     }
@@ -31,7 +33,7 @@ class Repository {
     insertFigure (model) {
         const columns = [
             'name',
-            'manufacturer',
+            'maker_id',
             'count',
             'scale',
             'built',
@@ -41,21 +43,18 @@ class Repository {
             'base_shape',
             'base_size',
         ];
- //       try {
+
             const stm = this.db.prepare(`INSERT INTO "figures" (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${columns.map((c) => '?').join(', ')})`);
         const { lastInsertRowid = 0 } = stm.run(...model.toInsertArray());
             if (lastInsertRowid > 0) {
                 model.setId(lastInsertRowid);
             }
-        // } catch (err) {
-        //     console.log(err.message);
-        // }
     }
 
-    updateFigure (modal) {
+    updateFigure (model) {
         const columns = [
             'name',
-            'manufacturer',
+            'maker_id',
             'count',
             'scale',
             'built',
@@ -65,16 +64,12 @@ class Repository {
             'base_shape',
             'base_size',
         ];
- //       try {
-            const stm = this.db.prepare(`UPDATE "figures" SET (${columns.map((c) => `"${c}" = ?`).join(', ')}), "updated" = NOW() WHERE "id" = ?`);
-        const { lastInsertRowid = 0 } = stm.run(...model.toInsertArray(), model.getId());
-            if (lastInsertRowid > 0) {
-                model.setId(lastInsertRowid);
-            }
-        // } catch (err) {
-        //     console.log(err.message);
-        // }
 
+        const stm = this.db.prepare(`UPDATE "figures" SET ${columns.map((c) => `"${c}" = ?`).join(', ')}, "updated" = datetime() WHERE "id" = ?`);
+        stm.run(
+            ...model.toInsertArray(),
+            model.getId(),
+        );
     }
 
     getAllTags () {
@@ -111,6 +106,8 @@ class Repository {
     }
 
     assignTags (tagIds, figureId) {
+        const stm1 = this.db.prepare(`DELETE FROM "rel_tag_figure" WHERE "figure_id" = ?`);
+        stm1.run(figureId);
         if (tagIds.length === 0) {
             return;
         }
@@ -124,14 +121,40 @@ class Repository {
             values.push(el);
             values.push(figureId);
         });
-        const stm = this.db.prepare(`INSERT INTO "rel_tag_figure" (tag_id, figure_id) VALUES ${placeHolders.join(',')}`);
-        stm.run(...values);
+        const stm2 = this.db.prepare(`INSERT INTO "rel_tag_figure" (tag_id, figure_id) VALUES ${placeHolders.join(',')}`);
+        stm2.run(...values);
+    }
+
+    getAllMakers () {
+        const arr = this.db.prepare(`SELECT "id", "name" FROM "makers"`).all();
+        return arr.map((obj) => {
+            return new Maker(obj);
+        });
+    }
+
+    insertMaker (maker) {
+        if (!maker.getName()) {
+            throw new Error('Maker name must be set.');
+        }
+        const stm = this.db.prepare(`INSERT INTO "makers" (name) VALUES (?)`);
+        const { lastInsertRowid = 0 } = stm.run(maker.getName());
+        if (lastInsertRowid > 0) {
+            maker.setId(lastInsertRowid);
+        }
+    }
+
+    deleteMaker (makerId) {
+        if (makerId <= 0) {
+            throw new Error('Invalid maker id.');
+        }
+        const stm = this.db.prepare(`DELETE FROM "makers" WHERE id = ?`);
+        stm.run(makerId);
     }
 }
 
 async function repo (fastify, options) {
 
-    const dbRepo = new Repository(fastify.betterSqlite3);
+    const dbRepo = new Repository(fastify.betterSqlite3, fastify.log);
 
     fastify.decorate('dbRepo', dbRepo);
 };

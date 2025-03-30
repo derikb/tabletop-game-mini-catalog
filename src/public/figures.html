@@ -1,0 +1,56 @@
+<html lang="en-US">
+    <head>
+        <title>Miniature Catalog: Figures</title>
+    </head>
+    <body>
+        <h1>Miniature Catalog</h1>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/tags">Manage Tags</a>
+            <a href="/makers">Manage Makers</a>
+        </nav>
+
+        <table id="figures-list">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <script>
+
+            const loadFigures = async function() {
+                const response = await fetch(
+                    '/figures/all',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                const { figures = [] } = await response.json();
+                const table = document.querySelector('#figures-list tbody');
+                figures.forEach((f) => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.figureid = f.id;
+                    tr.innerHTML = `
+                        <td>${f.id}</td>
+                        <td>${f.name}</td>
+                        <td><a href="/?figure_id=${f.id}">Edit</a></td>
+                    `;
+                    table.appendChild(tr);
+                });
+            };
+
+            loadFigures();
+        </script>
+    </body>
+</html>

@@ -3,39 +3,40 @@
         <title>Miniature Catalog: Tags</title>
     </head>
     <body>
-        <h1>Miniature Catalog: Tags</h1>
+        <h1>Miniature Catalog: Makers</h1>
 
         <nav>
             <a href="/">Back to Main</a>
+            <a href="/tags">Manage Tags</a>
         </nav>
 
-        <form id="tag-add" method="post" action="/tag">
+        <form id="maker-add" method="post" action="/maker">
 
-            <label for="tag-name">Tag</label>
-            <input id="tag-name" type="text" name="name" required />
+            <label for="maker-name">maker</label>
+            <input id="maker-name" type="text" name="name" required />
 
             <button type="submit">Save</button>
         </form>
 
-        <h2>Existing Tags</h2>
-        <ul id="tag-list">
+        <h2>Existing Makers</h2>
+        <ul id="maker-list">
         </ul>
 
         <script>
-            const tagList = document.getElementById('tag-list');
+            const makerList = document.getElementById('maker-list');
 
-            const tagTemp = function ({ id = 0, name = '' }) {
-                return `<li id="tag-${id}">${name} <button type="button" class="btn-tag-delete" data-id="${id}">Delete</button></li>`;
+            const makerTemp = function ({ id = 0, name = '' }) {
+                return `<li id="maker-${id}">${name} <button type="button" class="btn-maker-delete" data-id="${id}">Delete</button></li>`;
             };
 
-            const addTagToList = function ({ id = 0, name = '' }) {
+            const addMakerToList = function ({ id = 0, name = '' }) {
                 if (id <= 0 || !name) {
                     return;
                 }
-                tagList.insertAdjacentHTML('beforeend', tagTemp({ id, name }));
+                makerList.insertAdjacentHTML('beforeend', makerTemp({ id, name }));
             }
 
-            const addForm = document.getElementById('tag-add');
+            const addForm = document.getElementById('maker-add');
             addForm.addEventListener('submit', async (ev) => {
                 ev.preventDefault();
                 const data = new FormData(addForm);
@@ -50,17 +51,17 @@
                         },
                     }
                 );
-                const { tag = null } = await response.json();
-                if (tag) {
-                    addTagToList(tag);
+                const { maker = null } = await response.json();
+                if (maker) {
+                    addMakerToList(maker);
                     addForm.reset();
                 }
             });
 
 
-            const loadTags = async function() {
+            const loadMakers = async function() {
                 const response = await fetch(
-                    '/tags/all',
+                    '/makers/all',
                     {
                         method: 'GET',
                         headers: {
@@ -71,16 +72,16 @@
                 );
                 const obj = await response.json();
                 console.log(obj);
-                const tags = obj.tags;
-                const select = document.getElementById('figure-tag_ids');
-                tags.forEach((t) => {
-                    addTagToList(t);
+                const makers = obj.makers;
+                const select = document.getElementById('figure-maker_ids');
+                makers.forEach((t) => {
+                    addMakerToList(t);
                 });
             };
 
-            const deleteTag = async function(tagId) {
+            const deleteMaker = async function(makerId) {
                 const response = await fetch(
-                    `/tag/${tagId}/delete`,
+                    `/maker/${makerId}/delete`,
                     {
                         method: 'POST',
                         headers: {
@@ -90,20 +91,20 @@
                 );
                 const { success = false } = await response.json();
                 if (success) {
-                    tagList.querySelector(`#tag-${tagId}`)?.remove();
+                    makerList.querySelector(`#maker-${makerId}`)?.remove();
                 }
             };
 
-            loadTags();
+            loadMakers();
 
-            tagList.addEventListener('click', (ev) => {
+            makerList.addEventListener('click', (ev) => {
                 const btn = ev.target.closest('button');
                 if (!btn) {
                     return;
                 }
-                if (btn.classList.contains('btn-tag-delete')) {
-                    const tagId = btn.dataset.id || 0;
-                    deleteTag(tagId);
+                if (btn.classList.contains('btn-maker-delete')) {
+                    const makerId = btn.dataset.id || 0;
+                    deleteMaker(makerId);
                 }
             });
         </script>

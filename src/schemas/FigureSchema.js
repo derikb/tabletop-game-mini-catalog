@@ -6,7 +6,7 @@ export default {
     ],
     properties: {
         name: { type: 'string'},
-        manufacturer: { type: 'integer' },
+        maker_id: { type: 'integer' },
         count: { type: 'integer' },
         scale: { type: 'integer' },
         built: { type: 'integer' },

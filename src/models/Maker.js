@@ -1,5 +1,5 @@
 
-export default class Manufacturer {
+export default class Maker {
     #id = 0;
     #name = '';
 
@@ -32,5 +32,11 @@ export default class Manufacturer {
             id: this.#id,
             name: this.#name,
         };
+    }
+
+    toInsertArray () {
+        return [
+            this.#name,
+        ]
     }
 };
