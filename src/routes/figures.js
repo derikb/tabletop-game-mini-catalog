@@ -69,6 +69,21 @@ async function routes (fastify, options) {
             .header('Content-Type', 'application/json; charset=utf-8')
             .send({ id: model.getId() });
     });
+
+    fastify.post('/figure/:figureId/delete', async (request, reply) => {
+        const { figureId } = request.params;
+        if (!fastify.dbRepo.deleteFigure(figureId)) {
+            reply
+            .code(500)
+            .header('Content-Type', 'application/json; charset=utf-8')
+                .send({ error: 'Failed to delete the Figure.' });
+            return;
+        }
+        reply
+            .code(200)
+            .header('Content-Type', 'application/json; charset=utf-8')
+            .send({ id: figureId });
+    });
 }
 
 export default routes;

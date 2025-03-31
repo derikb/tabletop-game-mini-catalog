@@ -72,6 +72,14 @@ class Repository {
         );
     }
 
+    deleteFigure (id) {
+        const stm = this.db.prepare(`DELETE FROM "figures" WHERE "id" = ?`);
+        const { changes = 0 } = stm.run(
+            id,
+        );
+        return changes > 0;
+    }
+
     getAllTags () {
         const arr = this.db.prepare(`SELECT "id", "name" FROM "tags"`).all();
         return arr.map((obj) => {

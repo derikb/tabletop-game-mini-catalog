@@ -24,7 +24,7 @@
         </table>
 
         <script>
-
+            const table = document.querySelector('#figures-list tbody');
             const loadFigures = async function() {
                 const response = await fetch(
                     '/figures/all',
@@ -37,20 +37,46 @@
                     }
                 );
                 const { figures = [] } = await response.json();
-                const table = document.querySelector('#figures-list tbody');
                 figures.forEach((f) => {
                     const tr = document.createElement('tr');
                     tr.dataset.figureid = f.id;
                     tr.innerHTML = `
                         <td>${f.id}</td>
                         <td>${f.name}</td>
-                        <td><a href="/?figure_id=${f.id}">Edit</a></td>
+                        <td><a href="/?figure_id=${f.id}">Edit</a>
+                            <a href="#" class="btn-figure-delete">Delete</a></td>
                     `;
                     table.appendChild(tr);
                 });
             };
 
+            const deleteFigure = async function(figureId) {
+                const response = await fetch(
+                    `/figure/${figureId}/delete`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                    }
+                );
+                const { id = 0 } = await response.json();
+                if (id > 0) {
+                    document.querySelector(`tr[data-figureid="${id}"]`)?.remove();
+                }
+            };
+
             loadFigures();
+
+            table.addEventListener('click', (ev) => {
+                if (ev.target.closest('.btn-figure-delete')) {
+                    const tr = ev.target.closest('tr');
+                    const id = tr?.dataset?.figureid || 0;
+                    if (id > 0) {
+                        deleteFigure(id);
+                    }
+                }
+            });
         </script>
     </body>
 </html>
