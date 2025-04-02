@@ -1,0 +1,211 @@
+<form id="figure-add" method="post" action="/figure">
+    <input type="hidden" name="id" id="figure-id" value="0" />
+
+    <div class="mb-3">
+    <label for="figure-name" class="form-label">Name of Figure or Group</label>
+    <input id="figure-name" class="form-control" type="text" name="name" required />
+    </div>
+
+    <div class="mb-3">
+    <label for="figure-maker_id" class="form-label">Maker</label>
+    <select id="figure-maker_id" class="form-select" name="maker_id">
+    </select>
+    </div>
+
+    <div class="mb-3">
+    <label for="figure-count" class="form-label">Number in Group</label>
+    <input id="figure-count" class="form-control" type="number" name="count" value="1" min="1" />
+    </div>
+
+    <div class="mb-3">
+    <label for="figure-scale" class="form-label">Scale (mm)</label>
+    <input id="figure-scale" class="form-control" type="number" name="scale" value="" min="1" />
+    </div>
+
+    <div  class="form-check">
+        <input type="checkbox" class="form-check-input" name="built" id="figure-built" value="1" checked />
+        <label for="figure-built" class="form-check-label">Built</label>
+    </div>
+
+    <div  class="form-check">
+        <input type="checkbox" class="form-check-input" name="primed" id="figure-primed" value="1" />
+        <label for="figure-primed" class="form-check-label">Primed</label>
+    </div>
+
+    <div  class="form-check">
+        <input type="checkbox" class="form-check-input" name="painted" id="figure-painted" value="1" />
+        <label for="figure-painted" class="form-check-label">Painted</label>
+    </div>
+
+    <div class="mb-3">
+        <label for="figure-material" class="form-label">Material</label>
+        <select id="figure-base_shape" class="form-select" name="material">
+            <option value="metal">Metal</option>
+            <option value="plastic">Plastic</option>
+            <option value="resin">Resin</option>
+            <option value="other">Other</option>
+        </select>
+
+    </div>
+
+    <div class="mb-3">
+    <label for="figure-base_shape" class="form-label">Base Shape</label>
+    <select id="figure-base_shape" class="form-select" name="base_shape">
+        <option value="">None</option>
+        <option value="circle">Circle</option>
+        <option value="square">Square</option>
+        <option value="rectangle">rectangle</option>
+        <option value="oval">oval</option>
+        <option value="hex">hex</option>
+        <option value="other">Other</option>
+    </select>
+    </div>
+
+    <div class="mb-3">
+    <label for="figure-base_size" class="form-label">Base Size (mm)</label>
+    <input id="figure-base_size" class="form-control" type="number" name="base_size" value="25" />
+    </div>
+
+    <div class="mb-3">
+    <label for="figure-tag_ids" class="form-label">Tags</label>
+    <select id="figure-tag_ids" class="form-select" name="tag_ids" multiple>
+    </select>
+    </div>
+
+    <button type="submit" class="btn">Save</button>
+</form>
+
+<script>
+
+    const addForm = document.getElementById('figure-add');
+    addForm.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const data = new FormData(addForm);
+
+        data.forEach((value, key) => {
+            console.log(`${value}, ${key}`);
+        });
+        const formObject = Object.fromEntries(data);
+        formObject.tag_ids = data.getAll('tag_ids');
+        try {
+            const figureId = data.get('id') || 0;
+            const response = await fetch(
+                `${addForm.action}${figureId > 0 ? `/${figureId}` : ''}`,
+                {
+                    method: addForm.method,
+                    body: JSON.stringify(formObject),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (!response.ok) {
+                const { message } = await response.json();
+                console.log(message);
+                return;
+            }
+            console.log(response);
+            alert('Success!');
+        } catch (err) {
+            console.log(err.message);
+        }
+    });
+
+    const loadTags = async function() {
+        const response = await fetch(
+            '/tags/all',
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const { tags = [] } = await response.json();
+        const select = document.getElementById('figure-tag_ids');
+        tags.forEach((t) => {
+            const opt = document.createElement('option');
+            opt.value = t.id ?? 0;
+            opt.innerText = t.name ?? '';
+            if (opt.innerText) {
+                select.appendChild(opt);
+            }
+        });
+    };
+
+    const loadMakers = async function() {
+        const response = await fetch(
+            '/makers/all',
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const { makers = [] } = await response.json();
+        const select = document.getElementById('figure-maker_id');
+        makers.forEach((t) => {
+            const opt = document.createElement('option');
+            opt.value = t.id ?? 0;
+            opt.innerText = t.name ?? '';
+            if (opt.innerText) {
+                select.appendChild(opt);
+            }
+        });
+    };
+
+    const loadFigure = async function(figure_id) {
+        const response = await fetch(
+            `/figure/${figure_id}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const { figure = null } = await response.json();
+        if (!figure) {
+            return;
+        }
+
+        addForm.reset();
+        for(const [key, val] of Object.entries(figure)) {
+            const input = addForm.elements[key];
+            switch(input.type) {
+                case 'select-one':
+                    input.value = val;
+                    break;
+                case 'select-multiple':
+                    Array.from(input.options).forEach((option) => {
+                        if (val.includes(Number(option.value))) {
+                            option.selected = true;
+                        } else {
+                            option.selected = false;
+                        }
+                    });
+                    break;
+                case 'checkbox':
+                    input.checked = !!val;
+                    break;
+                default:
+                    input.value = val;
+                    break;
+            }
+        }
+    };
+
+    loadTags();
+    loadMakers();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('figure_id') > 0) {
+        const figureId = params.get('figure_id');
+        loadFigure(figureId);
+    }
+</script>

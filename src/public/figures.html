@@ -1,82 +1,67 @@
-<html lang="en-US">
-    <head>
-        <title>Miniature Catalog: Figures</title>
-    </head>
-    <body>
-        <h1>Miniature Catalog</h1>
+<table class="table table-striped" id="figures-list">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
 
-        <nav>
-            <a href="/">Home</a>
-            <a href="/tags">Manage Tags</a>
-            <a href="/makers">Manage Makers</a>
-        </nav>
+<script>
+    const table = document.querySelector('#figures-list tbody');
+    const loadFigures = async function() {
+        const response = await fetch(
+            '/figures/all',
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const { figures = [] } = await response.json();
+        figures.forEach((f) => {
+            const tr = document.createElement('tr');
+            tr.dataset.figureid = f.id;
+            tr.innerHTML = `
+                <td>${f.id}</td>
+                <td>${f.name}</td>
+                <td><a href="/edit?figure_id=${f.id}">Edit</a>
+                    <a href="#" class="btn-figure-delete">Delete</a></td>
+            `;
+            table.appendChild(tr);
+        });
+    };
 
-        <table id="figures-list">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+    const deleteFigure = async function(figureId) {
+        const response = await fetch(
+            `/figure/${figureId}/delete`,
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            }
+        );
+        const { id = 0 } = await response.json();
+        if (id > 0) {
+            document.querySelector(`tr[data-figureid="${id}"]`)?.remove();
+        }
+    };
 
-        <script>
-            const table = document.querySelector('#figures-list tbody');
-            const loadFigures = async function() {
-                const response = await fetch(
-                    '/figures/all',
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                const { figures = [] } = await response.json();
-                figures.forEach((f) => {
-                    const tr = document.createElement('tr');
-                    tr.dataset.figureid = f.id;
-                    tr.innerHTML = `
-                        <td>${f.id}</td>
-                        <td>${f.name}</td>
-                        <td><a href="/?figure_id=${f.id}">Edit</a>
-                            <a href="#" class="btn-figure-delete">Delete</a></td>
-                    `;
-                    table.appendChild(tr);
-                });
-            };
+    loadFigures();
 
-            const deleteFigure = async function(figureId) {
-                const response = await fetch(
-                    `/figure/${figureId}/delete`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                    }
-                );
-                const { id = 0 } = await response.json();
-                if (id > 0) {
-                    document.querySelector(`tr[data-figureid="${id}"]`)?.remove();
-                }
-            };
-
-            loadFigures();
-
-            table.addEventListener('click', (ev) => {
-                if (ev.target.closest('.btn-figure-delete')) {
-                    const tr = ev.target.closest('tr');
-                    const id = tr?.dataset?.figureid || 0;
-                    if (id > 0) {
-                        deleteFigure(id);
-                    }
-                }
-            });
-        </script>
-    </body>
-</html>
+    table.addEventListener('click', (ev) => {
+        if (ev.target.closest('.btn-figure-delete')) {
+            const tr = ev.target.closest('tr');
+            const id = tr?.dataset?.figureid || 0;
+            if (id > 0) {
+                deleteFigure(id);
+            }
+        }
+    });
+</script>

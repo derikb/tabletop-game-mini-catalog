@@ -1,3 +1,5 @@
+import { getPage } from '../public/pageService.js';
+
 /**
  * A plugin that provide encapsulated routes
  * @param {FastifyInstance} fastify encapsulated fastify instance
@@ -5,23 +7,58 @@
  */
 async function routes (fastify, options) {
     fastify.get('/', async (request, reply) => {
-        reply.sendFile('index.html');
-        return reply;
+        reply.header('Content-Type', 'text/html');
+        reply.send(
+            await getPage(
+                'Figures',
+                '/',
+                'figures',
+            )
+        );
     });
 
-    fastify.get('/figures', async (request, reply) => {
-        reply.sendFile('figures.html');
-        return reply;
+    fastify.get('/new', async (request, reply) => {
+        reply.header('Content-Type', 'text/html');
+        reply.send(
+            await getPage(
+                'Add Figure',
+                '/new',
+                'new',
+            )
+        );
+    });
+
+    fastify.get('/edit', async (request, reply) => {
+        reply.header('Content-Type', 'text/html');
+        reply.send(
+            await getPage(
+                'Edit Figure',
+                '/edit',
+                'new',
+            )
+        );
     });
 
     fastify.get('/tags', async (request, reply) => {
-        reply.sendFile('tags.html');
-        return reply;
+        reply.header('Content-Type', 'text/html');
+        reply.send(
+            await getPage(
+                'Manage Tags',
+                '/tags',
+                'tags',
+            )
+        );
     });
 
     fastify.get('/makers', async (request, reply) => {
-        reply.sendFile('makers.html');
-        return reply;
+        reply.header('Content-Type', 'text/html');
+        reply.send(
+            await getPage(
+                'Manage Makers',
+                '/maker',
+                'makers',
+            )
+        );
     });
 
     fastify.get('/test', async (request, reply) => {

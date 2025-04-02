@@ -1,112 +1,98 @@
-<html lang="en-US">
-    <head>
-        <title>Miniature Catalog: Tags</title>
-    </head>
-    <body>
-        <h1>Miniature Catalog: Makers</h1>
+<form id="maker-add" method="post" action="/maker">
 
-        <nav>
-            <a href="/">Back to Main</a>
-            <a href="/tags">Manage Tags</a>
-        </nav>
+    <label for="maker-name">maker</label>
+    <input id="maker-name" type="text" name="name" required />
 
-        <form id="maker-add" method="post" action="/maker">
+    <button type="submit">Save</button>
+</form>
 
-            <label for="maker-name">maker</label>
-            <input id="maker-name" type="text" name="name" required />
+<h2>Existing Makers</h2>
+<ul id="maker-list">
+</ul>
 
-            <button type="submit">Save</button>
-        </form>
+<script>
+    const makerList = document.getElementById('maker-list');
 
-        <h2>Existing Makers</h2>
-        <ul id="maker-list">
-        </ul>
+    const makerTemp = function ({ id = 0, name = '' }) {
+        return `<li id="maker-${id}">${name} <button type="button" class="btn-maker-delete" data-id="${id}">Delete</button></li>`;
+    };
 
-        <script>
-            const makerList = document.getElementById('maker-list');
+    const addMakerToList = function ({ id = 0, name = '' }) {
+        if (id <= 0 || !name) {
+            return;
+        }
+        makerList.insertAdjacentHTML('beforeend', makerTemp({ id, name }));
+    }
 
-            const makerTemp = function ({ id = 0, name = '' }) {
-                return `<li id="maker-${id}">${name} <button type="button" class="btn-maker-delete" data-id="${id}">Delete</button></li>`;
-            };
-
-            const addMakerToList = function ({ id = 0, name = '' }) {
-                if (id <= 0 || !name) {
-                    return;
-                }
-                makerList.insertAdjacentHTML('beforeend', makerTemp({ id, name }));
+    const addForm = document.getElementById('maker-add');
+    addForm.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const data = new FormData(addForm);
+        const response = await fetch(
+            addForm.action,
+            {
+                method: addForm.method,
+                body: JSON.stringify(Object.fromEntries(data)),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
             }
-
-            const addForm = document.getElementById('maker-add');
-            addForm.addEventListener('submit', async (ev) => {
-                ev.preventDefault();
-                const data = new FormData(addForm);
-                const response = await fetch(
-                    addForm.action,
-                    {
-                        method: addForm.method,
-                        body: JSON.stringify(Object.fromEntries(data)),
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                const { maker = null } = await response.json();
-                if (maker) {
-                    addMakerToList(maker);
-                    addForm.reset();
-                }
-            });
+        );
+        const { maker = null } = await response.json();
+        if (maker) {
+            addMakerToList(maker);
+            addForm.reset();
+        }
+    });
 
 
-            const loadMakers = async function() {
-                const response = await fetch(
-                    '/makers/all',
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                const obj = await response.json();
-                console.log(obj);
-                const makers = obj.makers;
-                const select = document.getElementById('figure-maker_ids');
-                makers.forEach((t) => {
-                    addMakerToList(t);
-                });
-            };
+    const loadMakers = async function() {
+        const response = await fetch(
+            '/makers/all',
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const obj = await response.json();
+        console.log(obj);
+        const makers = obj.makers;
+        const select = document.getElementById('figure-maker_ids');
+        makers.forEach((t) => {
+            addMakerToList(t);
+        });
+    };
 
-            const deleteMaker = async function(makerId) {
-                const response = await fetch(
-                    `/maker/${makerId}/delete`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                    }
-                );
-                const { success = false } = await response.json();
-                if (success) {
-                    makerList.querySelector(`#maker-${makerId}`)?.remove();
-                }
-            };
+    const deleteMaker = async function(makerId) {
+        const response = await fetch(
+            `/maker/${makerId}/delete`,
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            }
+        );
+        const { success = false } = await response.json();
+        if (success) {
+            makerList.querySelector(`#maker-${makerId}`)?.remove();
+        }
+    };
 
-            loadMakers();
+    loadMakers();
 
-            makerList.addEventListener('click', (ev) => {
-                const btn = ev.target.closest('button');
-                if (!btn) {
-                    return;
-                }
-                if (btn.classList.contains('btn-maker-delete')) {
-                    const makerId = btn.dataset.id || 0;
-                    deleteMaker(makerId);
-                }
-            });
-        </script>
-    </body>
-</html>
+    makerList.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button');
+        if (!btn) {
+            return;
+        }
+        if (btn.classList.contains('btn-maker-delete')) {
+            const makerId = btn.dataset.id || 0;
+            deleteMaker(makerId);
+        }
+    });
+</script>
