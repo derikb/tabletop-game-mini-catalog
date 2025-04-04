@@ -14,6 +14,7 @@ export default class Figure {
     #added = null;
     #updated = null;
     #tagIds = [];
+    #makerName = '';
 
     constructor({
         id = 0,
@@ -30,6 +31,7 @@ export default class Figure {
         added = null,
         updated = null,
         tag_ids = [],
+        maker_name = '',
     }) {
         this.#id = id;
         this.#name = name;
@@ -44,7 +46,12 @@ export default class Figure {
         this.#base_size = base_size;
         this.#added = added;
         this.#updated = updated;
-        this.#tagIds = tag_ids.map((el) => { return Number(el); }).filter((e) => e);
+        if (Array.isArray(tag_ids)) {
+            this.#tagIds = tag_ids.map((el) => { return Number(el); }).filter((e) => e);
+        } else {
+            this.#tagIds = tag_ids?.split(';').map((el) => { return Number(el.trim()); }).filter((e) => e) || [];
+        }
+        this.#makerName = maker_name;
     }
 
     getId () {
@@ -147,6 +154,7 @@ export default class Figure {
             base_shape: this.#base_shape,
             base_size: this.#base_size,
             tag_ids: this.#tagIds,
+            maker_name: this.#makerName,
         };
     }
 

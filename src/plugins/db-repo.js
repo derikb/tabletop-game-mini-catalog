@@ -12,14 +12,21 @@ class Repository {
     }
 
     getAllFigures () {
-        const arr = this.db.prepare(`SELECT * FROM "figures"`).all();
+        const arr = this.db.prepare(`SELECT f.*, m."name" as "maker_name", GROUP_CONCAT(rtf."tag_id", ';') as tag_ids
+            FROM "figures" f
+            LEFT JOIN "makers" m ON m."id" = f."maker_id"
+            LEFT JOIN "rel_tag_figure" rtf ON rtf."figure_id" = f."id"
+            GROUP BY f."id"
+        `).all();
         return arr.map((obj) => {
             return new Figure(obj);
         });
     }
 
     getFigure (id) {
-        const obj = this.db.prepare(`SELECT * FROM "figures" WHERE "id" = ? LIMIT 1`).get([id]);
+        const obj = this.db.prepare(`SELECT f.*
+            FROM "figures" f
+            WHERE f."id" = ? LIMIT 1`).get([id]);
         const model = obj ? new Figure(obj) : null;
         if (model) {
             model.setTagIds(this.getTagIdsByFigure(model.getId()));
@@ -81,7 +88,7 @@ class Repository {
     }
 
     getAllTags () {
-        const arr = this.db.prepare(`SELECT "id", "name" FROM "tags"`).all();
+        const arr = this.db.prepare(`SELECT "id", "name" FROM "tags" ORDER BY "name" ASC`).all();
         return arr.map((obj) => {
             return new Tag(obj);
         });
@@ -134,7 +141,7 @@ class Repository {
     }
 
     getAllMakers () {
-        const arr = this.db.prepare(`SELECT "id", "name" FROM "makers"`).all();
+        const arr = this.db.prepare(`SELECT "id", "name" FROM "makers" ORDER BY "name" ASC`).all();
         return arr.map((obj) => {
             return new Maker(obj);
         });

@@ -1,79 +1,104 @@
 <form id="figure-add" method="post" action="/figure">
     <input type="hidden" name="id" id="figure-id" value="0" />
 
-    <div class="mb-3">
-    <label for="figure-name" class="form-label">Name of Figure or Group</label>
-    <input id="figure-name" class="form-control" type="text" name="name" required />
+    <div class="row mb-3">
+        <label for="figure-name" class="col-sm-3 col-form-label">Figure/Group</label>
+        <div class="col-sm-9">
+            <input id="figure-name" class="form-control" type="text" name="name" required />
+        </div>
     </div>
 
-    <div class="mb-3">
-    <label for="figure-maker_id" class="form-label">Maker</label>
-    <select id="figure-maker_id" class="form-select" name="maker_id">
-    </select>
+    <div class="row mb-3">
+        <label for="figure-count" class="col-sm-3 col-form-label">Number in Group</label>
+        <div class="col-sm-2">
+            <input id="figure-count" class="form-control" type="number" name="count" value="1" min="1" />
+        </div>
+
+        <label for="figure-maker_id" class="col-sm-2 col-form-label">Maker</label>
+        <div class="col-sm-5">
+            <div class="input-group">
+            <select id="figure-maker_id" class="form-select" name="maker_id"></select>
+            <button class="btn btn-outline-secondary" type="button" id="btn-maker-add">Add Maker</button>
+            </div>
+        </div>
     </div>
 
-    <div class="mb-3">
-    <label for="figure-count" class="form-label">Number in Group</label>
-    <input id="figure-count" class="form-control" type="number" name="count" value="1" min="1" />
-    </div>
-
-    <div class="mb-3">
-    <label for="figure-scale" class="form-label">Scale (mm)</label>
-    <input id="figure-scale" class="form-control" type="number" name="scale" value="" min="1" />
-    </div>
-
-    <div  class="form-check">
-        <input type="checkbox" class="form-check-input" name="built" id="figure-built" value="1" checked />
-        <label for="figure-built" class="form-check-label">Built</label>
-    </div>
-
-    <div  class="form-check">
-        <input type="checkbox" class="form-check-input" name="primed" id="figure-primed" value="1" />
-        <label for="figure-primed" class="form-check-label">Primed</label>
-    </div>
-
-    <div  class="form-check">
-        <input type="checkbox" class="form-check-input" name="painted" id="figure-painted" value="1" />
-        <label for="figure-painted" class="form-check-label">Painted</label>
-    </div>
-
-    <div class="mb-3">
-        <label for="figure-material" class="form-label">Material</label>
-        <select id="figure-base_shape" class="form-select" name="material">
+    <div class="row mb-3">
+        <label for="figure-scale" class="col-sm-3 col-form-label">Scale (mm)</label>
+        <div class="col-sm-3">
+            <input id="figure-scale" class="form-control" type="number" name="scale" value="28" min="1" />
+        </div>
+        <label for="figure-material" class="col-sm-3 col-form-label">Material</label>
+        <div class="col-sm-3">
+        <select id="figure-material" class="form-select" name="material">
             <option value="metal">Metal</option>
             <option value="plastic">Plastic</option>
             <option value="resin">Resin</option>
             <option value="other">Other</option>
         </select>
-
+        </div>
     </div>
 
-    <div class="mb-3">
-    <label for="figure-base_shape" class="form-label">Base Shape</label>
-    <select id="figure-base_shape" class="form-select" name="base_shape">
-        <option value="">None</option>
-        <option value="circle">Circle</option>
-        <option value="square">Square</option>
-        <option value="rectangle">rectangle</option>
-        <option value="oval">oval</option>
-        <option value="hex">hex</option>
-        <option value="other">Other</option>
-    </select>
-    </div>
+    <div class="row mb-3">
+        <label for="figure-base_shape" class="col-sm-3 col-form-label">Base Shape</label>
+        <div class="col-sm-3">
+        <select id="figure-base_shape" class="form-select" name="base_shape">
+            <option value="">None</option>
+            <option value="circle">Circle</option>
+            <option value="square">Square</option>
+            <option value="rectangle">rectangle</option>
+            <option value="oval">oval</option>
+            <option value="hex">hex</option>
+            <option value="other">Other</option>
+        </select>
+        </div>
 
-    <div class="mb-3">
-    <label for="figure-base_size" class="form-label">Base Size (mm)</label>
+    <label for="figure-base_size" class="col-sm-3 col-form-label">Base Size (mm)</label>
+    <div class="col-sm-3">
     <input id="figure-base_size" class="form-control" type="number" name="base_size" value="25" />
     </div>
+    </div>
 
-    <div class="mb-3">
-    <label for="figure-tag_ids" class="form-label">Tags</label>
+    <div class="row mb-3">
+    <label for="figure-tag_ids" class="col-sm-3 col-form-label">Tags</label>
+    <div class="col-sm-9">
     <select id="figure-tag_ids" class="form-select" name="tag_ids" multiple>
     </select>
     </div>
+    </div>
 
-    <button type="submit" class="btn">Save</button>
+    <div class="d-flex justify-content-around mb-3">
+        <div  class="form-check-inline">
+            <input type="checkbox" class="form-check-input" name="built" id="figure-built" value="1" checked />
+            <label for="figure-built" class="form-check-label ms-3">Built</label>
+        </div>
+
+        <div  class="form-check-inline">
+            <input type="checkbox" class="form-check-input" name="primed" id="figure-primed" value="1" />
+            <label for="figure-primed" class="form-check-label ms-3">Primed</label>
+        </div>
+
+        <div  class="form-check-inline">
+            <input type="checkbox" class="form-check-input" name="painted" id="figure-painted" value="1" />
+            <label for="figure-painted" class="form-check-label ms-3">Painted</label>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
 </form>
+
+<dialog id="modal-maker-add">
+    <form id="maker-add" method="post" action="/maker" clas="row align-items-center">
+        <div class="col-12">
+            <label for="maker-name">Maker</label>
+            <input id="maker-name" type="text" name="name" required />
+            <button type="submit">Save</button>
+        </div>
+    </form>
+    <form method="dialog">
+        <button>Cancel</button>
+      </form>
+</dialog>
 
 <script>
 
@@ -177,6 +202,9 @@
         addForm.reset();
         for(const [key, val] of Object.entries(figure)) {
             const input = addForm.elements[key];
+            if (!input) {
+                continue;
+            }
             switch(input.type) {
                 case 'select-one':
                     input.value = val;
@@ -200,8 +228,45 @@
         }
     };
 
+    const addMakerToList = function(maker) {
+        const select = document.getElementById('figure-maker_id');
+        const option = document.createElement('option');
+        option.value = maker.id;
+        option.innerText = maker.name;
+        option.selected = true;
+        select.appendChild(option);
+    };
+
     loadTags();
     loadMakers();
+
+    const addMakerDialog = document.getElementById('modal-maker-add');
+    document.getElementById('btn-maker-add').addEventListener('click', (ev) => {
+        addMakerDialog.showModal();
+    });
+
+    document.getElementById('maker-add').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const form = ev.target;
+        const data = new FormData(form);
+        const response = await fetch(
+            form.action,
+            {
+                method: form.method,
+                body: JSON.stringify(Object.fromEntries(data)),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const { maker = null } = await response.json();
+        if (maker) {
+            addMakerToList(maker);
+            form.reset();
+            addMakerDialog.close();
+        }
+    });
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('figure_id') > 0) {

@@ -3,6 +3,9 @@
         <tr>
             <th>Id</th>
             <th>Name</th>
+            <th>Count</th>
+            <th>Maker</th>
+            <th>Tags</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -11,6 +14,20 @@
 </table>
 
 <script>
+    let allTags = [];
+
+    const getTags = function (tagIds = []) {
+        let tags = [];
+        tagIds.forEach((id) => {
+            const tag = allTags.find((t) => t.id === id );
+            if (tag) {
+                tags.push(`<span>${tag.name}</span>`);
+            }
+        });
+
+        return tags.join(' ');
+    };
+
     const table = document.querySelector('#figures-list tbody');
     const loadFigures = async function() {
         const response = await fetch(
@@ -30,7 +47,10 @@
             tr.innerHTML = `
                 <td>${f.id}</td>
                 <td>${f.name}</td>
-                <td><a href="/edit?figure_id=${f.id}">Edit</a>
+                <td>${f.count}</td>
+                <td>${f.maker_name}</td>
+                <td>${getTags(f.tag_ids)}</td>
+                <td><a href="/edit?figure_id=${f.id}" class="me-2">Edit</a>
                     <a href="#" class="btn-figure-delete">Delete</a></td>
             `;
             table.appendChild(tr);
@@ -53,7 +73,20 @@
         }
     };
 
-    loadFigures();
+    const loadTags = async function() {
+        const response = await fetch(
+            '/tags/all',
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const { tags = [] } = await response.json();
+        allTags = tags;
+    };
 
     table.addEventListener('click', (ev) => {
         if (ev.target.closest('.btn-figure-delete')) {
@@ -64,4 +97,15 @@
             }
         }
     });
+
+    const startPage = async function () {
+        await loadTags();
+        await loadFigures();
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startPage);
+    } else {
+        startPage();
+    }
 </script>
