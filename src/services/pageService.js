@@ -10,6 +10,7 @@ const getHead = function (
         <style>
             label { font-weight: bold; }
         </style>
+        <script src="/js/index.js" type="module"></script>
     </head>`;
 };
 
@@ -31,7 +32,7 @@ const getPages = function () {
             path: '/makers',
             label: 'Manage Makers',
         }
-    ]
+    ];
 };
 
 const getNavItems = function (current = '') {
@@ -52,6 +53,7 @@ const getFrame = function (
     content,
 ) {
     return `
+    <!DOCTYPE html>
     <html lang="en-US">
         ${getHead(title)}
     <body>
@@ -69,7 +71,7 @@ const getFrame = function (
 };
 
 const getContent = async function (filename) {
-    return await fs.readFile(`${import.meta.dirname}/${filename}.html`, { encoding: 'utf8' });
+    return await fs.readFile(`${import.meta.dirname}/../public/${filename}.html`, { encoding: 'utf8' });
 };
 
 const getPage = async function (title, path, filename) {

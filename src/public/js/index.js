@@ -1,0 +1,32 @@
+import { initAddForm, initFigureTable } from './figure.js';
+import { initMakerPage } from './makers.js';
+import { initTagPage } from './tags.js';
+
+const initPage = function () {
+    const path = location.pathname;
+    switch (path) {
+        case '/':
+        case '':
+            initFigureTable();
+            break;
+        case '/new':
+        case '/edit':
+            initAddForm();
+            break;
+        case '/tags':
+            initTagPage();
+            break;
+        case '/makers':
+            initMakerPage();
+            break;
+        default:
+            break;
+    }
+};
+
+if (document.readyState === 'loading') {
+    // Loading hasn't finished yet
+    document.addEventListener('DOMContentLoaded', initPage);
+} else {
+    initPage();
+}
