@@ -22,9 +22,9 @@ const loadTags = async function () {
     }
 };
 
-const addTagsToPage = function () {
+const addTagsToPage = async function () {
     if (allTags === null) {
-        loadTags();
+        await loadTags();
     }
     const select = document.querySelector('#figure-tag_ids, #tag-list');
     if (!select) {
@@ -82,9 +82,10 @@ const addNewTag = async function (ev) {
     const { tag = null } = await response.json();
     if (tag) {
         allTags.push(tag);
-        addTagToList(tag, tagList);
         form.reset();
+        return tag;
     }
+    return null;
 };
 
 const deleteTag = async function(tagId) {
@@ -125,13 +126,18 @@ const getTagsSpans = function (tagIds = []) {
     return tags.join(' ');
 };
 
-const initTagPage = function () {
+const initTagPage = async function () {
     tagList = document.getElementById('tag-list');
 
     const addForm = document.getElementById('tag-add');
-    addForm?.addEventListener('submit', addNewTag);
+    addForm?.addEventListener('submit', async (ev) => {
+        const tag = await addNewTag(ev);
+        if (tag) {
+            addTagToList(tag, tagList);
+        }
+    });
 
-    addTagsToPage();
+    await addTagsToPage();
 
     tagList.addEventListener('click', (ev) => {
         const btn = ev.target.closest('button');
@@ -158,4 +164,5 @@ export {
     addTagsToPage,
     getTagsSpans,
     getTags,
+    addNewTag,
 };

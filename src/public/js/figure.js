@@ -1,6 +1,6 @@
 import AutoComplete from './AutoComplete.js';
 import { addMaker, loadMakers } from './makers.js';
-import { getTags, getTagsSpans, loadTags } from './tags.js';
+import { getTags, getTagsSpans, loadTags, addNewTag } from './tags.js';
 
 let addForm = null;
 
@@ -8,7 +8,7 @@ const getTagBadge = function ({ id = 0, name = '' }) {
     return `
     <span class="badge text-bg-secondary">
         <input type="hidden" name="tag_ids" value="${id}" />${name}
-        <button type="button" class="btn btn-sm btn-dark btn-tag-remove ms-2">X</button>
+        <a href="#" class="icon-link link-light btn-tag-remove ms-2"><i class="bi bi-x-circle-fill"></i></a>
     </span>
     `;
 };
@@ -187,7 +187,22 @@ const initAddForm = async function () {
         addMakerDialog?.showModal();
     });
 
+    const addTagDialog = document.getElementById('modal-tag-add');
+    document.getElementById('btn-tag-add')?.addEventListener('click', () => {
+        addTagDialog?.showModal();
+    });
+
     document.getElementById('maker-add').addEventListener('submit', addMaker);
+
+    document.getElementById('tag-add').addEventListener('submit', async (ev) => {
+        const tag = await addNewTag(ev);
+        addTagDialog.close();
+        if (!tag) {
+            return;
+        }
+        // add to figure
+        addForm.querySelector('#figure-tags').insertAdjacentHTML('beforeend', getTagBadge(tag));
+    });
 
     // make sure tags and makers (or any other loaded options)
     // are loaded before this.
@@ -198,9 +213,9 @@ const initAddForm = async function () {
     }
 
     document.body.addEventListener('click', (ev) => {
-        const btn = ev.target.tagName === 'BUTTON'
+        const btn =['BUTTON', 'A'].includes(ev.target.tagName)
             ? ev.target
-            : ev.target.closest('button');
+            : ev.target.closest('button, a');
         if (!btn) {
             return;
         }
@@ -208,6 +223,10 @@ const initAddForm = async function () {
             ev.preventDefault();
             removeTag(btn);
             return;
+        }
+        if (btn.classList.contains('btn-dialog-close')) {
+            ev.preventDefault();
+            btn.closest('dialog')?.close();
         }
     });
 };

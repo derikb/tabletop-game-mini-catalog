@@ -388,7 +388,7 @@ export default class AutoComplete {
         this.list.id = this.getListId();
         this.list.setAttribute('role', 'listbox');
         this.list.setAttribute('aria-label', this.listLabel);
-        this.list.classList.add('s-ui-autocomplete-list');
+        this.list.classList.add('autocomplete-list');
         this.list.classList.add('d-none');
         // insert list after input
         this.input.parentNode.insertBefore(this.list, this.input.nextSibling);

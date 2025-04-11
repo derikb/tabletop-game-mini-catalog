@@ -62,7 +62,10 @@
     <div class="row mb-3">
     <label for="figure-tag_ids" class="col-sm-3 col-form-label">Tags</label>
     <div class="col-sm-9">
-        <input type="text" name="tag_auto" id="figure-tag_ids" />
+        <div class="input-group">
+        <input type="text" name="tag_auto" id="figure-tag_ids" class="form-control" />
+        <button class="btn btn-outline-secondary" type="button" id="btn-tag-add">Add Tag</button>
+        </div>
     </div>
     </div>
     <div id="figure-tags" class="mb-3">
@@ -100,4 +103,17 @@
     <form method="dialog">
         <button>Cancel</button>
       </form>
+</dialog>
+
+<dialog id="modal-tag-add">
+    <form id="tag-add" method="post" action="/tag" class="row row-cols-lg-auto g-3 align-items-center">
+        <div class="col-12">
+            <label for="tag-name" class="form-label">Tag</label>
+            <input id="tag-name" type="text" name="name" class="form-control" required />
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="submit" class="btn btn-secondary btn-dialog-close">Cancel</button>
+        </div>
+    </form>
 </dialog>
