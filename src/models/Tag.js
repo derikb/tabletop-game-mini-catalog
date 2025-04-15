@@ -2,13 +2,16 @@
 export default class Tag {
     #id = 0;
     #name = '';
+    #figure_count = 0;
 
     constructor({
         id = 0,
         name = '',
+        figure_count = 0,
     }) {
-        this.#id = id;
+        this.#id = Number(id);
         this.#name = name;
+        this.#figure_count = Number(figure_count);
     }
 
     getId () {
@@ -27,16 +30,21 @@ export default class Tag {
         this.#name = name;
     }
 
+    getCount () {
+        return this.#figure_count;
+    }
+
     toJSON () {
         return {
             id: this.#id,
             name: this.#name,
+            figure_count: this.#figure_count,
         };
     }
 
     toInsertArray () {
         return [
             this.#name,
-        ]
+        ];
     }
 };

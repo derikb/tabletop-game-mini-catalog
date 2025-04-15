@@ -1,5 +1,5 @@
 
-let tagList = null;
+let tagTable = null;
 let allTags = null;
 
 const loadTags = async function () {
@@ -26,42 +26,31 @@ const addTagsToPage = async function () {
     if (allTags === null) {
         await loadTags();
     }
-    const select = document.querySelector('#figure-tag_ids, #tag-list');
-    if (!select) {
-        return;
-    }
     allTags.forEach((t) => {
-        addTagToList(t, select);
+        addTagToTable(t);
     });
 };
 
-const tagTemp = function ({ id = 0, name = '' }) {
-    return `<li id="tag-${id}">${name} <button type="button" class="btn-tag-delete" data-id="${id}">Delete</button></li>`;
-};
-
-const addTagToList = function ({ id = 0, name = '' }, list) {
+const addTagToTable = function ({ id = 0, name = '', figure_count = 0 }) {
     if (id <= 0 || !name) {
         return;
     }
-    if (list.tagName === 'UL') {
-        list.insertAdjacentHTML('beforeend', tagTemp({ id, name }));
-    }
-    if (list.tagName === 'SELECT') {
-        const opt = tagOption({ id, name });
-        if (opt) {
-            list.appendChild(opt);
-        }
+    if (tagTable) {
+        tagTable.insertAdjacentHTML('beforeend', tagRow({ id, name, figure_count }));
     }
 };
 
-const tagOption = function ({ id = 0, name = '' }) {
+const tagRow = function ({ id = 0, name = '', figure_count = 0 }) {
     if (id <= 0 || !name) {
-        return null;
+        return '';
     }
-    const opt = document.createElement('option');
-    opt.value = id ?? 0;
-    opt.innerText = name;
-    return opt;
+    return `<tr id="tag-${id}">
+        <td>${name}</td>
+        <td>${figure_count}</td>
+        <td>
+            <button type="button" class="btn btn-danger btn-tag-delete" data-id="${id}">Delete</button>
+        </td>
+    </tr>`;
 };
 
 const addNewTag = async function (ev) {
@@ -100,7 +89,7 @@ const deleteTag = async function(tagId) {
     );
     const { success = false } = await response.json();
     if (success) {
-        tagList.querySelector(`#tag-${tagId}`)?.remove();
+        tagTable.querySelector(`#tag-${tagId}`)?.remove();
 
         const index = allTags.findIndex((t) => {
             return t.id === tagId;
@@ -111,6 +100,10 @@ const deleteTag = async function(tagId) {
     }
 };
 
+/**
+ * Spans for tags applied to figure.
+ * @param {Array<Number>} tagIds
+ */
 const getTagsSpans = function (tagIds = []) {
     if (allTags === null) {
         loadTags();
@@ -127,19 +120,25 @@ const getTagsSpans = function (tagIds = []) {
 };
 
 const initTagPage = async function () {
-    tagList = document.getElementById('tag-list');
+    tagTable = document.querySelector('#table-tags tbody');
+
+    const addTagDialog = document.getElementById('modal-tag-add');
+    document.getElementById('btn-tag-add')?.addEventListener('click', () => {
+        addTagDialog?.showModal();
+    });
 
     const addForm = document.getElementById('tag-add');
     addForm?.addEventListener('submit', async (ev) => {
         const tag = await addNewTag(ev);
+        addTagDialog.close();
         if (tag) {
-            addTagToList(tag, tagList);
+            addTagToTable(tag);
         }
     });
 
     await addTagsToPage();
 
-    tagList.addEventListener('click', (ev) => {
+    document.body.addEventListener('click', (ev) => {
         const btn = ev.target.closest('button');
         if (!btn) {
             return;
@@ -147,6 +146,10 @@ const initTagPage = async function () {
         if (btn.classList.contains('btn-tag-delete')) {
             const tagId = Number(btn.dataset.id || 0);
             deleteTag(tagId);
+        }
+        if (btn.classList.contains('btn-dialog-close')) {
+            ev.preventDefault();
+            btn.closest('dialog')?.close();
         }
     });
 };

@@ -17,7 +17,7 @@ const initPage = async function () {
             await initTagPage();
             break;
         case '/makers':
-            initMakerPage();
+            await initMakerPage();
             break;
         default:
             break;

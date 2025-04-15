@@ -51,11 +51,11 @@ class Repository {
             'base_size',
         ];
 
-            const stm = this.db.prepare(`INSERT INTO "figures" (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${columns.map((c) => '?').join(', ')})`);
+        const stm = this.db.prepare(`INSERT INTO "figures" (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${columns.map(() => '?').join(', ')})`);
         const { lastInsertRowid = 0 } = stm.run(...model.toInsertArray());
-            if (lastInsertRowid > 0) {
-                model.setId(lastInsertRowid);
-            }
+        if (lastInsertRowid > 0) {
+            model.setId(lastInsertRowid);
+        }
     }
 
     updateFigure (model) {
@@ -88,7 +88,13 @@ class Repository {
     }
 
     getAllTags () {
-        const arr = this.db.prepare(`SELECT "id", "name" FROM "tags" ORDER BY "name" ASC`).all();
+        const arr = this.db.prepare(`
+            SELECT "id", "name", count("rel_tag_figure"."figure_id") as "figure_count"
+            FROM "tags"
+            LEFT JOIN "rel_tag_figure" ON "rel_tag_figure"."tag_id" = "tags"."id"
+            GROUP BY "tags"."id"
+            ORDER BY "name" ASC
+        `).all();
         return arr.map((obj) => {
             return new Tag(obj);
         });
@@ -141,7 +147,12 @@ class Repository {
     }
 
     getAllMakers () {
-        const arr = this.db.prepare(`SELECT "id", "name" FROM "makers" ORDER BY "name" ASC`).all();
+        const arr = this.db.prepare(`
+            SELECT "makers"."id", "makers"."name", COUNT("figures"."id") as "figure_count"
+            FROM "makers"
+            LEFT JOIN "figures" ON "figures"."maker_id" = "makers"."id"
+            GROUP BY "makers"."id"
+            ORDER BY "makers"."name" ASC`).all();
         return arr.map((obj) => {
             return new Maker(obj);
         });
@@ -167,8 +178,7 @@ class Repository {
     }
 }
 
-async function repo (fastify, options) {
-
+async function repo (fastify) {
     const dbRepo = new Repository(fastify.betterSqlite3, fastify.log);
 
     fastify.decorate('dbRepo', dbRepo);

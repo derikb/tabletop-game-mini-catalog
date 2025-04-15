@@ -1,5 +1,5 @@
 import AutoComplete from './AutoComplete.js';
-import { addMaker, loadMakers } from './makers.js';
+import { addMaker, addMakersToSelect } from './makers.js';
 import { getTags, getTagsSpans, loadTags, addNewTag } from './tags.js';
 
 let addForm = null;
@@ -179,8 +179,9 @@ const initAddForm = async function () {
     addForm?.addEventListener('submit', handleForm);
 
     const tags = await getTags();
-    await loadMakers();
     initTagAutoComplete(tags);
+
+    await addMakersToSelect();
 
     const addMakerDialog = document.getElementById('modal-maker-add');
     document.getElementById('btn-maker-add')?.addEventListener('click', () => {
