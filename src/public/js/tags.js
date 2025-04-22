@@ -112,7 +112,7 @@ const getTagsSpans = function (tagIds = []) {
     tagIds.forEach((id) => {
         const tag = allTags.find((t) => t.id === id );
         if (tag) {
-            tags.push(`<span>${tag.name}</span>`);
+            tags.push(`<span class="figure-tag">${tag.name}</span>`);
         }
     });
 

@@ -22,3 +22,10 @@ label { font-weight: bold; }
 	background-color: black;
 	color: white;
 }
+
+.figure-tag {
+    margin-right: .25rem;
+    border: 1px solid currentColor;
+    padding: .125rem .25rem;
+    border-radius: .25rem;
+}
