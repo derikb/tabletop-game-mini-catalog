@@ -1,6 +1,7 @@
 import { initAddForm, initFigureTable } from './figure.js';
 import { initMakerPage } from './makers.js';
 import { initTagPage } from './tags.js';
+import { initStatsPage } from './stats.js';
 
 const initPage = async function () {
     const path = location.pathname;
@@ -18,6 +19,9 @@ const initPage = async function () {
             break;
         case '/makers':
             await initMakerPage();
+            break;
+        case '/stats':
+            await initStatsPage();
             break;
         default:
             break;

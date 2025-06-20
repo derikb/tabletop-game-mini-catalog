@@ -61,6 +61,17 @@ async function routes (fastify) {
         );
     });
 
+    fastify.get('/stats', async (request, reply) => {
+        reply.header('Content-Type', 'text/html');
+        reply.send(
+            await getPage(
+                'View Stats',
+                '/stats',
+                'stats',
+            )
+        );
+    });
+
     fastify.get('/test', async (request, reply) => {
         const result = fastify.dbRepo.getAllFigures();
         fastify.log.info(result);

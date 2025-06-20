@@ -1,9 +1,10 @@
-import Fastify from 'fastify'
+import Fastify from 'fastify';
 import pagesRoute from './src/routes/pages.js';
 import figureRoutes from './src/routes/figures.js';
 import makerRoutes from './src/routes/makers.js';
+import statRoutes from './src/routes/stats.js';
 import tagRoutes from './src/routes/tags.js';
-import dbConnector from './src/plugins/db-connector.js'
+import dbConnector from './src/plugins/db-connector.js';
 import bootstrapTables from './src/plugins/db-bootstrap.js';
 import repo from './src/plugins/db-repo.js';
 import fastifyStatic from '@fastify/static';
@@ -24,20 +25,21 @@ fastify.register(pagesRoute);
 fastify.register(tagRoutes);
 fastify.register(makerRoutes);
 fastify.register(figureRoutes);
+fastify.register(statRoutes);
 
 fastify.addHook('onReady', async function () {
     // Some async code
     await bootstrapTables(fastify);
-  })
+});
 /**
  * Run the server!
  */
 const start = async () => {
     try {
-      await fastify.listen({ port: 3000 });
-  } catch (err) {
-      fastify.log.error(err);
-      process.exit(1);
-  }
-}
+        await fastify.listen({ port: 3000 });
+    } catch (err) {
+        fastify.log.error(err);
+        process.exit(1);
+    }
+};
 start();

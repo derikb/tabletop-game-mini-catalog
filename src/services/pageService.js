@@ -30,7 +30,11 @@ const getPages = function () {
         {
             path: '/makers',
             label: 'Manage Makers',
-        }
+        },
+        {
+            path: '/stats',
+            label: 'View Stats',
+        },
     ];
 };
 

@@ -2,6 +2,7 @@
 import fastifyPlugin from 'fastify-plugin';
 import Figure from '../models/Figure.js';
 import Maker from '../models/Maker.js';
+import Stats from '../models/Stats.js';
 import Tag from '../models/Tag.js';
 
 class Repository {
@@ -175,6 +176,17 @@ class Repository {
         }
         const stm = this.db.prepare(`DELETE FROM "makers" WHERE id = ?`);
         stm.run(makerId);
+    }
+
+    getStats() {
+        const obj = this.db.prepare(`SELECT
+            COUNT(f."id") as entries,
+            SUM(f."count") as figures,
+            SUM(f."built") as built,
+            SUM(f."primed") as primed,
+            SUM(f."painted") as painted
+        FROM "figures" f`).get();
+        return obj ? new Stats(obj) : null;
     }
 }
 
